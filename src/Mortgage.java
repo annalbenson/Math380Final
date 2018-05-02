@@ -10,23 +10,35 @@ public class Mortgage {
 
     public static void main(String [] args){
 
-        System.out.println("Find ideal payment for 30 year mortgage");
-        problem5a(150,360,1.005,200000);
-        System.out.println("\n");
-        //System.out.println("Find maximum initial principal for 30 year mortgage");
-        //problem5b(150,360,1.005,1500);
+        //System.out.println("Find ideal payment for 30 year mortgage");
+        //problem5a(100,360,1.005,200000);
+        //System.out.println("\n");
+        System.out.println("Find maximum initial principal for 30 year mortgage");
+        problem5b(150,360,1.005,1500);
+
+
+        // Testing results
+
+        double P_n = 250187.3779; int months = 360;
+        double monthlyPayment = 1500; double interestRate = 1.005;
+        for (int i = 0; i < months; i++) {
+            P_n = (interestRate * P_n) - monthlyPayment;
+            //System.out.println(i + "\t" + P_n);
+        }
+        //System.out.println("Check, should equal 0 --> " + P_n);
+
 
     }
 
     public static void problem5a(int cycles, int months, double interestRate, double initialPrincipal){
         // Purpose: Find monthlyPayment s.t. P_months = 0 with given interestRate and initialPrincipal
 
-        double monthlyPayment = 5000; // arbitrary starting point
+        double monthlyPayment = 1199; // arbitrary starting point
         double P_n = 0; // represents value of P at month n
 
         // For changing initialPrincipal after each cycle of months
         boolean lastAction = true; // true is up, false is down
-        double interval = 100; // how much monthlyPayment will originally increase/decrease
+        double interval = 200; // how much monthlyPayment will originally increase/decrease
 
         int count = 0;
         while (count < cycles) {
@@ -35,41 +47,45 @@ public class Mortgage {
             // System.out.println("Starting a_n = " + a_n);
             // System.out.println("Starting payment = " + p);
 
-
             // simulate i months
             for (int i = 0; i < months; i++) {
                 P_n = (interestRate * P_n) - monthlyPayment;
-                // System.out.println(i + "\t" + a_n);
+                //System.out.println(i + "\t" + P_n);
             }
 
-            System.out.println("count = " + count );
-            System.out.println("P_months = " + P_n );
-            System.out.println("monthlyPayment was " + monthlyPayment);
+            //System.out.println("count = " + count );
+            //System.out.println("P_months = " + P_n );
+            //System.out.println("monthlyPayment was " + monthlyPayment);
             // check if |P_n| > 1 to see whether an optimal monthlyPayment has been found or not
             if (Math.abs(P_n) > 1) {
                 // initial value modification
-                if (P_n < 0) { // payment needs to decrease
+                if (P_n < 0) { // overshot, payment needs to decrease
+                    //System.out.println("A: P_n is negative so payment needs to decrease");
 
-                    if (lastAction) { // went up last
+                    if (lastAction) { // current action is decrease and past is increase --> decrease less
+                        //System.out.println("A1: Payment increased last time so ");
+                        interval /= 2;
+                        monthlyPayment -= interval;
+                    } else { // current action is decrease and past is decrease --> decrease
+                        //System.out.println("A2: Payment decreased last time");
+                        monthlyPayment -= interval;
+                    }
+                    lastAction = false; // both are decrease actions, set boolean appropriately
+                }
+                if (P_n > 0) { // undershot, payment needs to increase
+                    //System.out.println("P_n is positive so payment needs to increase");
+                    monthlyPayment += interval;
+                    if (lastAction) { // current action is increase and past is increase --> increase
                         monthlyPayment += interval;
-                    } else { // went down last
+                    } else { // current action is increase and past is decrease --> increase less
                         interval /= 2;
                         monthlyPayment += interval;
                     }
                     lastAction = true;
-                }
-                if (P_n > 0) { // initial needs to decrease
-                    //System.out.println("Positive balance, a0 needs to decrease");
-                    if (lastAction) { // went up last
-                        interval /= 2;
-                        monthlyPayment -= interval;
-                    } else { // went down last
-                        monthlyPayment -= interval;
-                    }
-                    lastAction = false;
+
                 }
             }
-            System.out.println("monthlyPayment is now " + monthlyPayment);
+            //System.out.println("monthlyPayment is now " + monthlyPayment);
             count++;
         }
 
